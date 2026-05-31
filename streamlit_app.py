@@ -50,13 +50,14 @@ st.markdown("""
         font-family: 'JetBrains Mono', monospace !important;
         font-weight: 800 !important;
     }
-    .card-box {
-        background-color: white;
-        padding: 24px;
-        border-radius: 16px;
-        border: 1px solid #E8F5E9;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(46,125,50,0.03);
+    /* Target both static HTML divs and Streamlit bordered containers */
+    .card-box, div[data-testid="stVerticalBlockBorderedTest"] {
+        background-color: white !important;
+        padding: 24px !important;
+        border-radius: 16px !important;
+        border: 1px solid #E8F5E9 !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px rgba(46,125,50,0.03) !important;
     }
     .dark-card-box {
         background-color: #2E7D32;
@@ -246,23 +247,22 @@ elif "🚜 Predict Tractor Fuel" in nav_page:
 
     # Persistent form inputs
     with col_form:
-        st.markdown('<div class="card-box">', unsafe_allow_html=True)
-        st.write("#### Field Diagnostic Inputs")
-        
-        crop_sel = st.selectbox("Crop Canopy Type", crops_list, index=0)
-        implement_sel = st.selectbox("Agricultural Operational Implement", implements_list, index=1)
-        
-        soil_res_sel = st.slider(
-            "Soil Resistance Index (SRI)", 
-            min_value=4.0, max_value=10.0, value=7.0, step=0.1,
-            help="Defines compact index. Sandy holds lower indexes whereas clay spans heavier SRI."
-        )
-        
-        speed_sel = st.slider("Tractor Operational Speed (km/h)", min_value=4.0, max_value=9.0, value=6.5, step=0.1)
-        depth_sel = st.slider("Tillage Operational Depth (cm)", min_value=8, max_value=35, value=22, step=1)
-        
-        predict_trigger = st.button("Calculate Fuel Target")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("#### Field Diagnostic Inputs")
+            
+            crop_sel = st.selectbox("Crop Canopy Type", crops_list, index=0)
+            implement_sel = st.selectbox("Agricultural Operational Implement", implements_list, index=1)
+            
+            soil_res_sel = st.slider(
+                "Soil Resistance Index (SRI)", 
+                min_value=4.0, max_value=10.0, value=7.0, step=0.1,
+                help="Defines compact index. Sandy holds lower indexes whereas clay spans heavier SRI."
+            )
+            
+            speed_sel = st.slider("Tractor Operational Speed (km/h)", min_value=4.0, max_value=9.0, value=6.5, step=0.1)
+            depth_sel = st.slider("Tillage Operational Depth (cm)", min_value=8, max_value=35, value=22, step=1)
+            
+            predict_trigger = st.button("Calculate Fuel Target")
 
     # Outputs & Optimization calculators render context
     with col_out:
@@ -294,46 +294,46 @@ elif "🚜 Predict Tractor Fuel" in nav_page:
             """, unsafe_allow_html=True)
 
             # Optimization Slider box block
-            st.markdown('<div class="card-box">', unsafe_allow_html=True)
-            st.write("#### 🛡️ Acre-Wide Depth Optimization")
-            st.write("Reduce tillage depth targets to compute conserving diesel offsets:")
-            
-            proposed_depth = st.slider(
-                "Proposed Optimized Depth (cm)", 
-                min_value=8, max_value=35, 
-                value=max(8, int(s_depth * 0.8)), 
-                step=1,
-                key="opt_depth_key"
-            )
-
-            # Calculate Optimization metrics
-            row_opt = rebuild_features_row(s_crop, s_impl, s_soil, s_speed, proposed_depth)
-            p_opt = float(system['model'].predict(row_opt)[0])
-            saved_f = max(0.0, p_val - p_opt)
-            saved_pct = (saved_f / p_val * 100) if p_val > 0 else 0.0
-
-            st.markdown(f"""
-                <div style="background-color: #E8F5E9; border: 1px solid #C8E6C9; padding:15px; border-radius:12px; margin: 15px 0;">
-                    <p style="color: #1B5E20; text-align:center; font-weight: bold; margin-bottom: 10px; font-size:14px;">Savings Assessment Outcome</p>
-                    <div style="display: flex; justify-content: space-around; text-align: center;">
-                        <div>
-                            <span style="font-size:10px; color:#555; display:block;">FUEL SAVED</span>
-                            <strong style="font-size: 18px; color:#2E7D32; font-family: monospace;">{saved_f:.1f} L/ha</strong>
-                        </div>
-                        <div>
-                            <span style="font-size:10px; color:#555; display:block;">EFFICIENCY</span>
-                            <strong style="font-size: 18px; color:#2E7D32; font-family: monospace;">+{saved_pct:.1f}%</strong>
+            with st.container(border=True):
+                st.write("#### 🛡️ Acre-Wide Depth Optimization")
+                st.write("Reduce tillage depth targets to compute conserving diesel offsets:")
+                
+                proposed_depth = st.slider(
+                    "Proposed Optimized Depth (cm)", 
+                    min_value=8, max_value=35, 
+                    value=max(8, int(s_depth * 0.8)), 
+                    step=1,
+                    key="opt_depth_key"
+                )
+    
+                # Calculate Optimization metrics
+                row_opt = rebuild_features_row(s_crop, s_impl, s_soil, s_speed, proposed_depth)
+                p_opt = float(system['model'].predict(row_opt)[0])
+                saved_f = max(0.0, p_val - p_opt)
+                saved_pct = (saved_f / p_val * 100) if p_val > 0 else 0.0
+    
+                st.markdown(f"""
+                    <div style="background-color: #E8F5E9; border: 1px solid #C8E6C9; padding:15px; border-radius:12px; margin: 15px 0;">
+                        <p style="color: #1B5E20; text-align:center; font-weight: bold; margin-bottom: 10px; font-size:14px;">Savings Assessment Outcome</p>
+                        <div style="display: flex; justify-content: space-around; text-align: center;">
+                            <div>
+                                <span style="font-size:10px; color:#555; display:block;">FUEL SAVED</span>
+                                <strong style="font-size: 18px; color:#2E7D32; font-family: monospace;">{saved_f:.1f} L/ha</strong>
+                            </div>
+                            <div>
+                                <span style="font-size:10px; color:#555; display:block;">EFFICIENCY</span>
+                                <strong style="font-size: 18px; color:#2E7D32; font-family: monospace;">+{saved_pct:.1f}%</strong>
+                            </div>
                         </div>
                     </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-            # Build and support TXT Report Download
-            report_text = f"""==================================================
+                """, unsafe_allow_html=True)
+    
+                # Build and support TXT Report Download
+                report_text = f"""==================================================
 AGRIFUEL AI DECISION SUPPORT SYSTEM - AUDIT RECEIPT
 ==================================================
 Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
-
+    
 1. SYSTEM CONFIGURATION PARAMETERS
 ----------------------------------
 Crop Canopy Type:      {s_crop}
@@ -341,32 +341,31 @@ Implement Used:        {s_impl}
 Soil Resistance Index: {s_soil} (Scale: 4-10)
 Tractor Target Speed:  {s_speed} km/h
 Baseline Tillage Depth: {s_depth} cm
-
+    
 2. ENSEMBLE SYSTEM PREDICTIONS
 ----------------------------------
 Expected Baseline Fuel Usage:  {p_val:.2f} Litres / Hectare
-
+    
 3. OPTIMIZED DEPTH SAFEGUARDS
 ----------------------------------
 Proposed Optimized Tillage Depth: {proposed_depth} cm
 Expected Fuel Usage at Optimized: {p_opt:.2f} Litres / Hectare
-
+    
 DIESEL SAVED OUTCOME:          {saved_f:.2f} Litres / Hectare
 PERCENTAGE SAVINGS OBTAINED:   {saved_pct:.2f} %
-
+    
 --------------------------------------------------
 Disclaimer: Fuel calculations are ensembled inside physical constraints 
 using Gradient Boosting Regressors. Actual yields and diesel demands 
 may pivot based on model wear and agricultural humidity variables.
 =================================================="""
-
-            st.download_button(
-                label="📥 Download Fuel Audit Report (.TXT)",
-                data=report_text,
-                file_name=f"agrifuel-report-{s_crop.lower()}-{s_depth}cm.txt",
-                mime="text/plain"
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
+    
+                st.download_button(
+                    label="📥 Download Fuel Audit Report (.TXT)",
+                    data=report_text,
+                    file_name=f"agrifuel-report-{s_crop.lower()}-{s_depth}cm.txt",
+                    mime="text/plain"
+                )
 
         else:
             st.info("💡 Supply operational inputs on the left side, then click 'Calculate Fuel Target' to compute physical fuel metrics.")
@@ -389,24 +388,22 @@ elif "📈 Analytics Dashboard" in nav_page:
     col_chart_left, col_chart_right = st.columns(2)
 
     with col_chart_left:
-        st.markdown('<div class="card-box">', unsafe_allow_html=True)
-        st.write("#### Feature Importance Splits (%)")
-        st.write("Estimated importance scores of the physical variables mapped during tree construction:")
-        
-        # Hardcoded relative normalized crop parameters
-        imp_data = pd.DataFrame({
-            'Metric Feature': ["Tillage Depth", "Soil Resistance Index", "Tractor Speed", "Implement Type", "Crop Canopy Class"],
-            'Importance (%)': [55, 28, 11, 4, 2]
-        })
-        st.bar_chart(data=imp_data.set_index('Metric Feature'), color="#2E7D32")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("#### Feature Importance Splits (%)")
+            st.write("Estimated importance scores of the physical variables mapped during tree construction:")
+            
+            # Hardcoded relative normalized crop parameters
+            imp_data = pd.DataFrame({
+                'Metric Feature': ["Tillage Depth", "Soil Resistance Index", "Tractor Speed", "Implement Type", "Crop Canopy Class"],
+                'Importance (%)': [55, 28, 11, 4, 2]
+            })
+            st.bar_chart(data=imp_data.set_index('Metric Feature'), color="#2E7D32")
 
     with col_chart_right:
-        st.markdown('<div class="card-box">', unsafe_allow_html=True)
-        st.write("#### Actual Fuel vs. ML Prediction Scatter Line")
-        st.write("Sorted progression overlay demonstrating tight convergence limits on model predictions:")
-        st.line_chart(system['plot_df'])
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("#### Actual Fuel vs. ML Prediction Scatter Line")
+            st.write("Sorted progression overlay demonstrating tight convergence limits on model predictions:")
+            st.line_chart(system['plot_df'])
 
 elif "📖 About Project" in nav_page:
     st.markdown("<h2>📖 Project Overview & Agricultural Objectives</h2>", unsafe_allow_html=True)
@@ -416,38 +413,35 @@ elif "📖 About Project" in nav_page:
     By compiling and analyzing complex interactions between tractor weights, ground resistance indexes, and depth draft forces, we empower farmers to farm smarter and cleaner.
     """)
 
-    st.markdown('<div class="card-box">', unsafe_allow_html=True)
-    st.write("### ⚠️ The Problem Statement")
-    st.write("""
-    Agricultural tillage accounts for a massive share of direct production energy spending. Historically, tillage is managed statically across a field, causing:
-    * High engine draft slips in dense compacted clays.
-    * Severe diesel waste when operating far below necessary depths.
-    * High greenhouse gas releases and subsoil compaction damage.
-    """)
-    st.markdown('</div>', unsafe_allow_html=True)
-
+    with st.container(border=True):
+        st.write("### ⚠️ The Problem Statement")
+        st.write("""
+        Agricultural tillage accounts for a massive share of direct production energy spending. Historically, tillage is managed statically across a field, causing:
+        * High engine draft slips in dense compacted clays.
+        * Severe diesel waste when operating far below necessary depths.
+        * High greenhouse gas releases and subsoil compaction damage.
+        """)
+    
     col_workflow, col_benefits = st.columns(2)
 
     with col_workflow:
-        st.markdown('<div class="card-box" style="height:100%;">', unsafe_allow_html=True)
-        st.write("### ⚙️ Machine Learning Workflow")
-        st.markdown("""
-        * **Synthetic Database Engine**: Generates 5,000 dense operations records reflecting genuine mechanics limits.
-        * **Preprocessing**: Applies categorical encoding to target select variables like active crop covers and operational tools.
-        * **Ensemble Optimization**: Trains a 100-estimator `GradientBoostingRegressor` to fit residuals iteratively.
-        * **Validation**: Confirms variance levels and MAE deviations are fully bounded before serving predictions.
-        """)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("### ⚙️ Machine Learning Workflow")
+            st.markdown("""
+            * **Synthetic Database Engine**: Generates 5,000 dense operations records reflecting genuine mechanics limits.
+            * **Preprocessing**: Applies categorical encoding to target select variables like active crop covers and operational tools.
+            * **Ensemble Optimization**: Trains a 100-estimator `GradientBoostingRegressor` to fit residuals iteratively.
+            * **Validation**: Confirms variance levels and MAE deviations are fully bounded before serving predictions.
+            """)
 
     with col_benefits:
-        st.markdown('<div class="card-box" style="height:100%;">', unsafe_allow_html=True)
-        st.write("### 🌾 Sustainable Benefits")
-        st.markdown("""
-        * **Reduce Operating Budgets**: Lowers direct diesel spending by up to 25% through smart tillage adjustments.
-        * **Safeguard Tractor Assets**: Minimizes hydraulic wear, gearbox strain, and tyre wear.
-        * **Practice Eco-Friendly Farming**: Lowers emission parameters and keeps subsoil aeration optimal for crops.
-        """)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("### 🌾 Sustainable Benefits")
+            st.markdown("""
+            * **Reduce Operating Budgets**: Lowers direct diesel spending by up to 25% through smart tillage adjustments.
+            * **Safeguard Tractor Assets**: Minimizes hydraulic wear, gearbox strain, and tyre wear.
+            * **Practice Eco-Friendly Farming**: Lowers emission parameters and keeps subsoil aeration optimal for crops.
+            """)
 
 # 4. Global Agri-branding footer
 st.markdown("""
