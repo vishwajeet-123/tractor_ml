@@ -19,39 +19,85 @@ st.set_page_config(
 # Custom agricultural style injects
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    /* Global typography overrides to match React UI */
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], .stApp, .stMarkdown, p, div, span, select, button, input, label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    
+    /* Code and metrics using high consistency JetBrains Mono */
+    code, pre, div[data-testid="stMetricValue"], [data-testid="stMetricValue"], .mono-text {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+
     .main {
         background-color: #F5FFF5;
     }
     .stApp {
         background-color: #F5FFF5;
     }
-    /* Brand custom colors */
-    h1, h2, h3 {
+    /* Brand custom colors and font weights */
+    h1, h2, h3, h4, h5, h6 {
         color: #1B5E20 !important;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em !important;
     }
+    
+    /* Button custom adjustments */
     .stButton>button {
         background-color: #2E7D32 !important;
         color: white !important;
         border-radius: 12px !important;
         border: none !important;
         font-weight: bold !important;
-        padding: 0.5rem 1.5rem !important;
-        transition: all 0.3s ease;
+        padding: 0.6rem 1.8rem !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .stButton>button:hover {
         background-color: #1B5E20 !important;
         transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(46,125,50,0.2) !important;
+        box-shadow: 0 6px 15px rgba(46,125,50,0.25) !important;
     }
+    
+    /* Slider interactive tracking selectors in Emerald Green */
+    div[data-baseweb="slider"] {
+        padding-bottom: 20px !important;
+    }
+    /* Style the background track filled area */
+    div[data-baseweb="slider"] > div > div {
+        background: #2E7D32 !important;
+    }
+    /* Style the slider thumb knob */
+    div[data-baseweb="slider"] [role="slider"] {
+        background-color: #2E7D32 !important;
+        border-color: #2E7D32 !important;
+        box-shadow: 0 2px 6px rgba(46,125,50,0.3) !important;
+    }
+    
+    /* Styled container elements matching original white card-box pattern */
+    div[data-testid="stVerticalBlockBorderedTest"] {
+        background-color: white !important;
+        padding: 24px !important;
+        border-radius: 16px !important;
+        border: 1px solid #E8F5E9 !important;
+        box-shadow: 0 4px 12px rgba(46,125,50,0.03) !important;
+        margin-bottom: 12px !important;
+    }
+    /* Dropdowns styling overrides */
+    div[data-baseweb="select"] > div {
+        border-color: #E8F5E9 !important;
+        border-radius: 12px !important;
+    }
+    
     /* Metric styling custom card */
     div[data-testid="stMetricValue"] {
         color: #2E7D32 !important;
-        font-family: 'JetBrains Mono', monospace !important;
         font-weight: 800 !important;
     }
-    /* Target both static HTML divs and Streamlit bordered containers */
-    .card-box, div[data-testid="stVerticalBlockBorderedTest"] {
+    .card-box {
         background-color: white !important;
         padding: 24px !important;
         border-radius: 16px !important;
