@@ -21,27 +21,27 @@ import {
   Gauge
 } from "lucide-react";
 import { ModelMetrics } from "../types";
+import { trainAndEvaluateModel } from "../ml_model";
 
 export default function AnalyticsDashboard() {
   const [metrics, setMetrics] = useState<ModelMetrics | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = () => {
     setLoading(true);
     setErrorMsg(null);
-    try {
-      const response = await fetch("/api/metrics");
-      if (!response.ok) {
-        throw new Error("Unable to load predictive analytics.");
+    // Simulate training process in-browser
+    setTimeout(() => {
+      try {
+        const { metrics: trainedMetrics } = trainAndEvaluateModel();
+        setMetrics(trainedMetrics);
+      } catch (error: any) {
+        setErrorMsg(error.message || "Failed to compile predictive analytics layout.");
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setMetrics(data);
-    } catch (error: any) {
-      setErrorMsg(error.message || "Failed to reach backend metrics server.");
-    } finally {
-      setLoading(false);
-    }
+    }, 450);
   };
 
   useEffect(() => {

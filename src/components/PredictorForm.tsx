@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { PredictionInput, OptimizationOutput } from "../types";
+import { computeFuelConsumption } from "../ml_model";
 
 export default function PredictorForm() {
   const [formData, setFormData] = useState<PredictionInput>({
@@ -38,69 +39,74 @@ export default function PredictorForm() {
   const crops = ["Wheat", "Rice", "Maize", "Cotton", "Sugarcane"];
   const implementList = ["Moldboard Plow", "Disc Harrow", "Chisel Plow", "Cultivator"];
 
-  const handlePredict = async (e: React.FormEvent) => {
+  const handlePredict = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg(null);
     setPrediction(null);
     setOptimization(null); // Reset optimization values on new base prediction
 
-    try {
-      const response = await fetch("/api/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Prediction request fell short.");
+    // Simulating deep network traversal / numerical evaluation animation
+    setTimeout(() => {
+      try {
+        const fuel = computeFuelConsumption(
+          formData.depth,
+          formData.soil_resistance,
+          formData.speed,
+          formData.crop_type,
+          formData.implement_type
+        );
+        setPrediction(fuel);
+        
+        // Auto-set starting optimized depth candidate to slightly less than current depth
+        const startingOpt = Math.max(8, Math.round(formData.depth * 0.8));
+        setOptDepth(startingOpt);
+      } catch (err: any) {
+        setErrorMsg(err.message || "Prediction error occurred.");
+      } finally {
+        setLoading(false);
       }
-
-      const result = await response.json();
-      setPrediction(result.fuel_consumption);
-      
-      // Auto-set starting optimized depth candidate to slightly less than current depth
-      const startingOpt = Math.max(8, Math.round(formData.depth * 0.8));
-      setOptDepth(startingOpt);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Unable to reach prediction model server.");
-    } finally {
-      setLoading(false);
-    }
+    }, 350);
   };
 
-  const handleOptimize = async () => {
+  const handleOptimize = () => {
     if (prediction === null) return;
     setOptLoading(true);
     setErrorMsg(null);
 
-    try {
-      const response = await fetch("/api/optimize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          crop_type: formData.crop_type,
-          implement_type: formData.implement_type,
-          soil_resistance: formData.soil_resistance,
-          speed: formData.speed,
-          current_depth: formData.depth,
-          optimized_depth: optDepth,
-        }),
-      });
+    // Simulating optimization convergence loop
+    setTimeout(() => {
+      try {
+        const current_fuel = computeFuelConsumption(
+          formData.depth,
+          formData.soil_resistance,
+          formData.speed,
+          formData.crop_type,
+          formData.implement_type
+        );
+        const optimized_fuel = computeFuelConsumption(
+          optDepth,
+          formData.soil_resistance,
+          formData.speed,
+          formData.crop_type,
+          formData.implement_type
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Optimization request failed.");
+        const fuel_saved = Math.max(0, current_fuel - optimized_fuel);
+        const savings_percent = current_fuel > 0 ? (fuel_saved / current_fuel) * 100 : 0;
+
+        setOptimization({
+          current_fuel: Math.round(current_fuel * 10) / 10,
+          optimized_fuel: Math.round(optimized_fuel * 10) / 10,
+          fuel_saved: Math.round(fuel_saved * 10) / 10,
+          savings_percent: Math.round(savings_percent * 10) / 10
+        });
+      } catch (err: any) {
+        setErrorMsg(err.message || "Optimization calculation failed.");
+      } finally {
+        setOptLoading(false);
       }
-
-      const result = await response.json();
-      setOptimization(result);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Optimization error.");
-    } finally {
-      setOptLoading(false);
-    }
+    }, 250);
   };
 
   const downloadPDFReport = () => {

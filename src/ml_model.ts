@@ -14,6 +14,38 @@ export interface Sample {
 export const CROPS = ["Wheat", "Rice", "Maize", "Cotton", "Sugarcane"];
 export const IMPLEMENTS = ["Moldboard Plow", "Disc Harrow", "Chisel Plow", "Cultivator"];
 
+// Pure browser-side math-based formula calculator specified by prompt
+export function computeFuelConsumption(
+  depth: number,
+  soilResistance: number,
+  speed: number,
+  cropType: string,
+  implementType: string
+): number {
+  const cropFactors: Record<string, number> = {
+    "Wheat": 0.2,
+    "Rice": 1.2,
+    "Maize": 0.5,
+    "Cotton": 0.8,
+    "Sugarcane": 1.8
+  };
+  
+  const implementFactors: Record<string, number> = {
+    "Moldboard Plow": 3.5,
+    "Disc Harrow": 0.0,
+    "Chisel Plow": 2.0,
+    "Cultivator": -1.5
+  };
+
+  const cropFactor = cropFactors[cropType] ?? 0.2;
+  const implementFactor = implementFactors[implementType] ?? 0.0;
+
+  // Formula specified in user request:
+  // fuelConsumption = 0.45 * tillageDepth + 1.2 * soilResistance - 0.3 * tractorSpeed + cropFactor + implementFactor
+  const fuel = (0.45 * depth) + (1.2 * soilResistance) - (0.3 * speed) + cropFactor + implementFactor;
+  return Math.max(3.0, Math.round(fuel * 10) / 10);
+}
+
 // Helper for random normal distribution
 function randomNormal(mean: number, stdDev: number): number {
   const u = 1 - Math.random(); // Converting [0,1) to (0,1]
