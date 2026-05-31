@@ -1,0 +1,6 @@
+{
+  "name": "Tractor Fuel Consumption Predictor",
+  "description": "An AI-based machine learning application to predict and optimize tractor fuel consumption for sustainable field operations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
