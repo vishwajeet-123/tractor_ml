@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 
 # Load model
-model = joblib.load("model.pkl")
+model = joblib.load("model_data.pkl")
 
 st.title("🚜 Tractor Fuel Consumption Predictor")
 
